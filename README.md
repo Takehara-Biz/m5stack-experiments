@@ -1,32 +1,33 @@
 # M5stack Experiments
 
-## 起動メモ
+## システム構成
 
-USBでcores3をmacに繋ぐ。
+M5E server
 
-UIFlow2.0にアクセス
-https://uiflow2.m5stack.com/
+* Node.js
+* runs on local PC
 
-繋いだデバイスを選択する。
+M5E client
 
-最初に、画面左下のWebBurner（雷マークがある方）をクリックして、ファームウェアを書き込む。
+* UIFlow 2.0 (MicroPython)
+* runs on m5stack core s3
 
-（自分が試した時は、v2.0.5を書いた）
 
-（多分、これを書かないと、自分で作ったプログラムを動かせない？）
-
-すると、最初に買った時に動いていたプログラムとは別のものが動く。（左上にUIFlow2と書かれたもの）
-
-それが表示された状態で、
-
-画面右下の「Run」から、起動すると、自分が書いたプログラムが読み込まれて、
-
-cores3に反映された！
-
-## 編集メモ
-
-左側にドラッグ＆ドロップで、画面を作れるが、
-
-一度でもコードを直接編集すると、左側の画面に表示されなくなる。
-
-どうやら、ドラッグ＆ドロップで作った画面をコード化することはできても、逆方向はできない？
+```mermaid
+sequenceDiagram
+    participant s as M5E server on local PC
+    participant c as M5E client on core s3
+    Note over s,c: Initialize (Set up)
+    s ->> s: set up web server
+    c ->> c: connect to near Wifi server
+    Note over s,c: Initialize (loop)
+    loop
+      c ->> c: take a photo and keep as byte array
+      c ->> s: HTTP POST the byte array to the server.
+      s ->> c: status OK
+      c ->> s: HTTP GET to get an order.
+      s ->> c: return an order ("print this message" or something...)
+      c ->> c: interpret the order.
+      c ->> c: wait 1 sec.
+    end
+```
